@@ -47,6 +47,7 @@ app.use('/api/artists', require('./routes/artists'));
 app.use('/api/publishers', require('./routes/publishers'));
 app.use('/api/genres', require('./routes/genres'));
 app.use('/api/producers', require('./routes/producers'));
+app.use('/api/songs', require('./routes/songs'));
 
 
 app.listen(port, () => {
