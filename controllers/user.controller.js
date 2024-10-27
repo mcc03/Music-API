@@ -1,69 +1,61 @@
-const readAll = (req, res) => {
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs')
+const User = require('../models/user.model')
 
-    res.status(200).json({
-        "message" : "All users retrieved"
-    });
+const register = (req, res) => {
+    console.log(req.body)
+
+    let newUser = new User(req.body);
+    newUser.password = bcrypt.hashSync(req.body.password, 10)
+
+
+    newUser.save()
+            .then(data => {
+                data.password = undefined;
+                return res.status(201).json(data);
+            })
+            .catch(err => {
+                return res.status(400).json({
+                    message: err
+                })
+            });
+    
 }
 
-const readOne = (req, res) => {
+const login = (req, res) => {
+    User.findOne({ email: req.body.email })
+    .then(user => {
+        if(!user || !user.comparePassword(req.body.password)){
+            res.status(401).json({
+                message: 'Authentication failed. Invalid user.'
+            })
+        }
 
-    let id = req.params.id;
-
-    res.status(200).json({
-        "message" : `User with id ${id} retrieved`
-    });
-}
-
-const createData = (req, res) => {
-
-    console.log(req.body);
-    let data = req.body;
-
-    if(data.password.length < 6){
-        return res.status(422).json({
-            "message" : "Password should be at least 6 characters"
+        return res.status(200).json({
+            token: jwt.sign({
+                email: user.email,
+                full_name: user.full_name,
+                _id: user._id
+            }, process.env.JWT_SECRET)
         });
+
+    })
+    .catch(err => {
+        return res.status(500).json(err);
+    })
+}
+
+const loginRequired = (req, res, next) => {
+    if(req.user){
+        next()
     }
-
-    data.password = undefined;
-
-    res.status(201).json({
-        "message" : "User created",
-        data
-    });
-}
-
-const updateData = (req, res) => {
-    
-        let id = req.params.id;
-        let data = req.body;
-
-        //connect to db and check if user exists
-        //check if data is valide, if yes update user with :id
-
-        data.id = id;
-    
-        res.status(200).json({
-            "message": `User with id ${id} updated`,
-            data
-        });
-}
-
-const deleteData = (req, res) => {
-
-    let id = req.params.id;
-
-    //connect to db and check if user exists, if yes, delete user with :id
-    
-    res.status(200).json({
-        "message": `User with id ${id} deleted`
-    });
+    else {
+        return res.status(401).json({message: "Unauthorized user."})
+    }
 }
 
 module.exports = {
-    readAll,
-    readOne,
-    createData,
-    updateData,
-    deleteData
-};
+    register,
+    login,
+    loginRequired
+}

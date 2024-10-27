@@ -1,4 +1,5 @@
 const express = require('express');
+jwt = require('jsonwebtoken');
 const app = express();
 
 require('dotenv').config();
@@ -12,11 +13,41 @@ app.use(express.json());
 //app.set('view engine', 'html');
 app.use(express.static(__dirname + '/views/'));
 
+app.use((req, res, next) => {
+    console.log("REQUEST: ", req)
+    req.user = "marlon";
+    next();
+});
+
+app.use((req, res, next) => {
+    console.log("REQUEST Log 2: ", req)
+    next();
+});
+
+//// AUTHORIZATION ////
+app.use((req, res, next) => {
+    let authHeader = req.headers.authorization?.split(' ');
+
+    if(req.headers?.authorization && authHeader[0] === 'Bearer'){
+        jwt.verify(authHeader[1], process.env.JWT_SECRET, (err, decoded) => {
+            if(err) req.user = undefined;
+            req.user = decoded;
+            next();
+        });
+    }
+    else {
+        req.user = undefined;
+        next();
+    }
+})
+//////////////////////
+
 app.use('/api/users', require('./routes/users'));
-app.use('/api/festivals', require('./routes/festivals'));
-app.use('/api/stages', require('./routes/stages'));
+//app.use('/api/festivals', require('./routes/festivals'));
+//app.use('/api/stages', require('./routes/stages'));
 
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
+

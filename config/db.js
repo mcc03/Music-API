@@ -13,7 +13,7 @@ const init = () => {
         console.log(`Error: ${err.stack}`);
     });
     mongoose.connection.on('open', () => {
-        console.log('Connected to db');
+        console.log(`Connected to ${process.env.DB_NAME}`);
     })
 };
 
