@@ -7,7 +7,7 @@ const {
     createData,
     updateData,
     deleteData
-} = require('../controllers/artist.controller');
+} = require('../controllers/publisher.controller');
 
 const { loginRequired } = require('../controllers/user.controller')
 
