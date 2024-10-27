@@ -43,7 +43,7 @@ app.use((req, res, next) => {
 //////////////////////
 
 app.use('/api/users', require('./routes/users'));
-//app.use('/api/festivals', require('./routes/festivals'));
+app.use('/api/artists', require('./routes/artists'));
 //app.use('/api/stages', require('./routes/stages'));
 
 
