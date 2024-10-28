@@ -6,16 +6,24 @@ const songSchema = new Schema({
         required: true,
         trim: true
     },
-    artist: {
-        type: String,
-        required: true,
-        trim: true
-    },
+    // artist: {
+    //     type: String,
+    //     required: true,
+    //     trim: true
+    // },
     description: {
         type: String,
         required: true,
         trim: true
     },
+
+    //many to many - //https://www.bezkoder.com/mongodb-many-to-many-mongoose/
+    artists: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Artist',
+        }
+    ],
     
     //foreign keys
     genre: {

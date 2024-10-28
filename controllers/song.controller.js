@@ -5,7 +5,8 @@ const populateQuery = [
     {path:'genre', select:'name'}, 
     {path:'feature', select:'full_name'}, 
     {path:'producer', select:'full_name'},
-    {path:'publisher', select:'name'}
+    {path:'publisher', select:'name'},
+    {path:'artists', select:'full_name'}
 ];
 
 const readAll = (req, res) => {

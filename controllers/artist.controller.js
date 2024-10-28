@@ -1,8 +1,12 @@
 const Artist = require('../models/artist.model');
 
+const populateQuery = [
+    {path:'songs', select:'title'}, 
+];
+
 const readAll = (req, res) => {
 
-    Artist.find()//.//populate('festival') //shows the festival data
+    Artist.find().populate(populateQuery)
         .then(data => {
             console.log(data);
 
@@ -26,7 +30,7 @@ const readAll = (req, res) => {
 const readOne = (req, res) => {
     let id = req.params.id;
 
-    Artist.findById(id)//.//populate('festival')
+    Artist.findById(id).populate(populateQuery)
         .then(data => {
             if(!data){
                 return res.status(404).json({
