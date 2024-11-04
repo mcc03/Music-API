@@ -1,4 +1,5 @@
 const Song = require('../models/song.model');
+const Artist = require('../models/artist.model')
 
 //https://stackoverflow.com/questions/21069813/mongoose-multiple-query-populate-in-a-single-call
 const populateQuery = [
@@ -97,26 +98,61 @@ const createData = (req, res) => {
     // });
 };
 
-const updateData = (req, res) => {
+const updateData = async (req, res) => {
     let id = req.params.id;
     let body = req.body;
 
-    Song.findByIdAndUpdate(id, body, {
-        new: true,
-        runValidators: true
-    })
-    .then(data => {
+    try{
+        let song = await Song.findById(id);
 
-            if(data){
-                return res.status(201).json(data);
-            }
-
+        if(!song){
             return res.status(404).json({
                 message: `Song with id: ${id} not found`
             })
-        })
+        }
 
-    .catch(err => {
+        console.log("TESTING UPDATE 0");
+        console.log(song);
+
+        song.title = body.title;
+        //loops through artists and adds each one
+        body.artists.forEach(artist => {
+            song.artists.addToSet(artist);
+        });
+        //song.artists = body.artists;
+        song.description = body.description;
+        song.genre = body.genre;
+        song.feature = body.feature;
+        song.producer = body.producer;
+        song.publisher = body.publisher;
+
+        console.log("TESTING UPDATE 1");
+        console.log(song);
+
+        let updatedSong = await song.save();
+
+        console.log("TESTING UPDATE 2");
+        console.log(updatedSong);
+
+        if(updatedSong){
+        //push song's id into artist's songs array
+
+        //get the song's artists
+        const artists = updatedSong.artists;
+
+        //push song's id into each artist's songs array and save the artist
+        for (let artistId of artists) {
+            let artist = await Artist.findById(artistId);
+            
+            if (artist) {
+                artist.songs.push(updatedSong._id);
+                await artist.save();
+            }
+        }
+            return res.status(201).json(updatedSong);
+        }
+    }
+    catch(err){
 
         if(err.name === 'CastError'){
 
@@ -134,7 +170,45 @@ const updateData = (req, res) => {
         }
 
         return res.status(500).json(err);
-    });
+    };
+
+    
+
+
+    // Song.findByIdAndUpdate(id, body, {
+    //     new: true,
+    //     runValidators: true
+    // })
+    // .then(data => {
+
+    //         if(data){
+    //             return res.status(201).json(data);
+    //         }
+
+    //         return res.status(404).json({
+    //             message: `Song with id: ${id} not found`
+    //         })
+    //     })
+
+    // .catch(err => {
+
+    //     if(err.name === 'CastError'){
+
+    //         if(err.kind === 'ObjectId'){
+    //             return res.status(404).json({
+    //                 message: `Song with id: ${id} not found`
+    //             });
+    //         }
+    //         else {
+    //             return res.status(422).json({
+    //                 message: err.message
+    //             });
+    //         }
+
+    //     }
+
+    //     return res.status(500).json(err);
+    // });
 
     // connect to db and check if user exists
     // check if data is valid, if yes update user with :id
