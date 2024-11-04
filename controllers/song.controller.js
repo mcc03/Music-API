@@ -66,36 +66,41 @@ const readOne = (req, res) => {
     // });
 };
 
-const createData = (req, res) => {
+const createData = async (req, res) => {
     console.log(req.body);
     let body = req.body;
 
-    Song.create(body)
-        .then(data => {
-            console.log(`New song created`, data);
-
-            //could have a conditonal statement that requires at least of the fields (full_name, alias) has data
-
-            return res.status(201).json({
-                message: "Song created",
-                data
-            });
-        })
-        .catch(err => {
-            console.log(err);
-
-            if(err.name === 'ValidationError'){
-                return res.status(422).json(err)
+    try {
+        let newSong = await Song.create(body);
+        console.log(`New song created`, newSong);
+    
+        //get the song's artists
+        const artists = newSong.artists;
+    
+        //push the song ids into the artist's songs array and save
+        for (let artistId of artists) {
+            let artist = await Artist.findById(artistId);
+    
+            //if the song has artists, push the song ID to the artist's songs array
+            if (artist) {
+                artist.songs.push(newSong._id);
+                await artist.save();
             }
-
-            return res.status(500).json(err);
+        }
+        return res.status(201).json({
+            message: "Song created",
+            data: newSong
         });
+    } catch (err) {
+        console.log(err);
 
+        if (err.name === 'ValidationError') {
+            return res.status(422).json(err);
+        }
 
-    // return res.status(201).json({
-    //     "message": "All good",
-    //     data
-    // });
+        return res.status(500).json(err);
+    
+    }
 };
 
 const updateData = async (req, res) => {
@@ -111,31 +116,29 @@ const updateData = async (req, res) => {
             })
         }
 
-        console.log("TESTING UPDATE 0");
-        console.log(song);
+        // console.log("TESTING UPDATE 0");
+        // console.log(song);
 
         song.title = body.title;
+
         //loops through artists and adds each one
         body.artists.forEach(artist => {
             song.artists.addToSet(artist);
         });
-        //song.artists = body.artists;
+
         song.description = body.description;
         song.genre = body.genre;
         song.feature = body.feature;
         song.producer = body.producer;
         song.publisher = body.publisher;
 
-        console.log("TESTING UPDATE 1");
-        console.log(song);
-
         let updatedSong = await song.save();
 
-        console.log("TESTING UPDATE 2");
-        console.log(updatedSong);
+        // console.log("TESTING UPDATE 2");
+        // console.log(updatedSong);
 
-        if(updatedSong){
         //push song's id into artist's songs array
+        if(updatedSong){ 
 
         //get the song's artists
         const artists = updatedSong.artists;
