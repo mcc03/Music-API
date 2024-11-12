@@ -1,5 +1,6 @@
 const Song = require('../models/song.model');
 const Artist = require('../models/artist.model')
+const User = require('../models/user.model')
 
 //https://stackoverflow.com/questions/21069813/mongoose-multiple-query-populate-in-a-single-call
 const populateQuery = [
@@ -229,35 +230,50 @@ const updateData = async (req, res) => {
 
 const deleteData = (req, res) => {
     let id = req.params.id;
+    let user = req.user.role;
+    let admin = 1;
 
     // connect to db, check if user exists, if yes delete user
 
-    Song.findByIdAndDelete(id)
-        .then(data => {
-            if(!data){
-                return res.status(404).json({
-                    message: `Song with id: ${id} not found`
-                });
-            }
-
-            return res.status(200).json({
-                message: `Song with id: ${id} deleted`
-            });
-        })
-        .catch(err => {
-
-            if(err.name === 'CastError'){
-                return res.status(404).json({
-                    message: `Song with id: ${id} not found`
-                });
-            }
-
-            return res.status(500).json(err);
+    
+    if(user != admin){
+        return res.status(403).json({
+            message: `You do not have privledges for this action. (Your role is ${user})`
+            
         });
+    }
 
-    // res.status(200).json({
-    //     "message": `You deleted song with id: ${id}`
-    // });
+        Song.findByIdAndDelete(id)
+            .then(data => {
+                if(!data){
+                    return res.status(404).json({
+                        message: `Song with id: ${id} not found`
+                    });
+                }
+
+                
+                return res.status(200).json({
+                    message: `Song with id: ${id} deleted. (Your role is ${user})`
+                });
+                
+
+            })
+            .catch(err => {
+
+                if(err.name === 'CastError'){
+                    return res.status(404).json({
+                        message: `Song with id: ${id} not found`
+                    });
+                }
+
+                return res.status(500).json(err);
+            });
+
+        // res.status(200).json({
+        //     "message": `You deleted song with id: ${id}`
+        // });
+
+    
 };
 
 module.exports = {

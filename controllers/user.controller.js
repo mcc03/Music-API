@@ -5,8 +5,11 @@ const User = require('../models/user.model')
 const register = (req, res) => {
     console.log(req.body)
 
+    //newUser.role = False;
+
     let newUser = new User(req.body);
     newUser.password = bcrypt.hashSync(req.body.password, 10)
+    newUser.role = req.body.role;
 
 
     newUser.save()
@@ -35,7 +38,8 @@ const login = (req, res) => {
             token: jwt.sign({
                 email: user.email,
                 full_name: user.full_name,
-                _id: user._id
+                _id: user._id,
+                role: user.role
             }, process.env.JWT_SECRET)
         });
 
@@ -54,8 +58,32 @@ const loginRequired = (req, res, next) => {
     }
 }
 
+const readAll = (req, res) => {
+
+    User.find()//.//populate('festival') //shows the festival data
+        .then(data => {
+            console.log(data);
+
+            if(data.length > 0){
+                return res.status(200).json(data);
+            }
+            else {
+                return res.status(404).json('None found');
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            return res.status(500).json(err);
+        });
+
+    // res.status(200).json({
+    //     "message": "All Producers retrieved"
+    // });
+};
+
 module.exports = {
     register,
     login,
-    loginRequired
+    loginRequired,
+    readAll
 }

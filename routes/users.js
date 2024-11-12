@@ -4,10 +4,11 @@ const router = express.Router();
 const { 
     register,
     login,
-    loginRequired
+    loginRequired,
+    readAll
 } = require('../controllers/user.controller');
 
-
+router.get('/', readAll);
 router.post('/register', register);
 router.post('/login', login);
 
