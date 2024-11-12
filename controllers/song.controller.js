@@ -79,6 +79,9 @@ const createData = async (req, res) => {
         const artists = newSong.artists;
     
         //push the song ids into the artist's songs array and save
+        // let artistList = await Artist.find({_id: { $in: artists }});
+        // console.log(artistList);
+
         for (let artistId of artists) {
             let artist = await Artist.findById(artistId);
     
