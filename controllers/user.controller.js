@@ -5,11 +5,19 @@ const User = require('../models/user.model')
 const register = (req, res) => {
     console.log(req.body)
 
-    //newUser.role = False;
+    //newUser.role = false;
+    
 
     let newUser = new User(req.body);
     newUser.password = bcrypt.hashSync(req.body.password, 10)
-    newUser.role = req.body.role;
+
+    //if role field is undefined, make it false, else get value of req.body.role
+    if (req.body.role === undefined) {
+        newUser.role = false;
+    } else {
+        newUser.role = req.body.role;
+    }
+
 
 
     newUser.save()
