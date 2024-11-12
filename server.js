@@ -53,4 +53,3 @@ app.use('/api/songs', require('./routes/songs'));
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
-
