@@ -5,9 +5,6 @@ const User = require('../models/user.model')
 const register = (req, res) => {
     console.log(req.body)
 
-    //newUser.role = false;
-    
-
     let newUser = new User(req.body);
     newUser.password = bcrypt.hashSync(req.body.password, 10)
 
@@ -17,8 +14,6 @@ const register = (req, res) => {
     } else {
         newUser.role = req.body.role;
     }
-
-
 
     newUser.save()
             .then(data => {
@@ -35,27 +30,48 @@ const register = (req, res) => {
 
 const login = (req, res) => {
     User.findOne({ email: req.body.email })
-    .then(user => {
-        if(!user || !user.comparePassword(req.body.password)){
-            res.status(401).json({
-                message: 'Authentication failed. Invalid user.'
-            })
-        }
+        .then(user => {
+            console.log('User found:', user); // Log the user object
 
-        return res.status(200).json({
-            token: jwt.sign({
+            if (!user || !user.comparePassword(req.body.password)) {
+                return res.status(401).json({
+                    msg: 'Authentication failed. Invalid user or password'
+                });
+            }
+
+            // Ensure APP_KEY is set
+            if (!process.env.APP_KEY) {
+                console.error('APP_KEY is not defined');
+                return res.status(500).json({
+                    msg: 'Internal server error'
+                });
+            }
+
+            // Generate the token
+            const token = jwt.sign({
                 email: user.email,
                 full_name: user.full_name,
                 _id: user._id,
                 role: user.role
-            }, process.env.JWT_SECRET)
-        });
+            }, process.env.APP_KEY);
 
-    })
-    .catch(err => {
-        return res.status(500).json(err);
-    })
-}
+            return res.status(200).json({
+                msg: 'All good',
+                token: token,
+            });
+        })
+        .catch(err => {
+            console.error('Error during login:', err); // Log the error
+            return res.status(500).json({
+                msg: 'Internal server error',
+                error: err.message
+            });
+        });
+};
+
+module.exports = {
+    login
+};
 
 const loginRequired = (req, res, next) => {
     if(req.user){

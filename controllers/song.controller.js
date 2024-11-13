@@ -234,7 +234,7 @@ const updateData = async (req, res) => {
 const deleteData = (req, res) => {
     let id = req.params.id;
     let user = req.user.role;
-    let admin = 1;
+    let admin = 1 || true;
 
     // connect to db, check if user exists, if yes delete user
 
