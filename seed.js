@@ -52,28 +52,14 @@ const publishers = [
     }
 ]
 
-// const artists = [
-//     {
-//         name: "Electronic",
-//         songs: [
-//             {
-//                 ref: 'Song',
-//             }
-//         ]
-//     }
-// ]
-
-// const songs = [
-//     {
-//         title: "new created song auto added to artist",
-//         artists: ["6728e1a7b4fbce4dc2ebd9cf"],
-//         description: "testing",
-//         genre: "671e51e1483b4e141960b0d9",
-//         feature: "671e6510ee0793f5cedae5f9",
-//         producer: "671e55154053186877ba3665",
-//         publisher: "671e4f46d93800dfc775b43b"
-//     }
-// ]
+const artists = [
+    {
+        full_name: "Artist A",
+    },
+    {
+        full_name: "Artist B"
+    }
+]
 
 let seedDB = async () => {
     await connect();
@@ -81,13 +67,59 @@ let seedDB = async () => {
     await Genre.deleteMany();
     await Producer.deleteMany();
     await Publisher.deleteMany();
+    await Artist.deleteMany();
+    await Song.deleteMany();
     //await Todo.deleteMany();
 
     await User.insertMany(users);
-    await Genre.insertMany(genres);
-    await Producer.insertMany(producers);
-    await Publisher.insertMany(publishers);
+
+    //insert genres and retrieve IDs
+    const insertedGenres = await Genre.insertMany(genres);
+    const genreIds = insertedGenres.map(genre => genre._id);
+
+    //insert producers and retrieve IDs
+    const insertedProducers = await Producer.insertMany(producers);
+    const producerIds = insertedProducers.map(producer => producer._id);
+
+    //insert publishers and retrieve IDs
+    const insertedPublishers = await Publisher.insertMany(publishers);
+    const publisherIds = insertedPublishers.map(publisher => publisher._id);
+
+    //insert artists and retrieve IDs
+    const insertedArtists = await Artist.insertMany(artists);
+    const artistIds = insertedArtists.map(artist => artist._id);
     //await Todo.insertMany(todos);
+
+    //define songs with retrieved IDs
+    const songs = [
+        {
+            title: "Seeded Song A",
+            artists: [artistIds[0]], //use the first artist's ID
+            description: "testing",
+            genre: genreIds[0], //use the first genre's ID
+            feature: artistIds[1], //use the second artist's ID as feature
+            producer: producerIds[0], //use the first producer's ID
+            publisher: publisherIds[0] //use the first publisher's ID
+        }
+    ];
+
+    // Insert songs
+    //await Song.insertMany(songs);
+
+        //insert songs and retrieve IDs
+        const insertedSongs = await Song.insertMany(songs);
+        const songIds = insertedSongs.map(song => song._id);
+    
+        //update the songs array in each artist document
+        for (let song of insertedSongs) {
+            for (let artistId of song.artists) {
+                let artist = await Artist.findById(artistId);
+                if (artist) {
+                    artist.songs.push(song._id);
+                    await artist.save();
+                }
+            }
+        }
 };
 
 seedDB().then(() => {
