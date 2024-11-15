@@ -68,6 +68,7 @@ const artists = [
 
 let seedDB = async () => {
     await connect();
+    //delete data before seeding
     await User.deleteMany();
     await Genre.deleteMany();
     await Producer.deleteMany();
@@ -75,27 +76,26 @@ let seedDB = async () => {
     await Artist.deleteMany();
     await Song.deleteMany();
 
+    //seed users
     await User.insertMany(users);
 
-    //insert genres and retrieve IDs
+    //seed genres and retrieve IDs
     const insertedGenres = await Genre.insertMany(genres);
     const genreIds = insertedGenres.map(genre => genre._id); //map the IDs to a new array
 
-    //insert producers and retrieve IDs
+    //seed producers and retrieve IDs
     const insertedProducers = await Producer.insertMany(producers);
     const producerIds = insertedProducers.map(producer => producer._id);
 
-    //insert publishers and retrieve IDs
+    //seed publishers and retrieve IDs
     const insertedPublishers = await Publisher.insertMany(publishers);
     const publisherIds = insertedPublishers.map(publisher => publisher._id);
 
-    //insert artists and retrieve IDs
+    //seed artists and retrieve IDs
     const insertedArtists = await Artist.insertMany(artists);
     const artistIds = insertedArtists.map(artist => artist._id);
 
     //define songs with IDs
-
-    //define songs with retrieved IDs
     const songs = [
         {
             title: "Seeded Song A",
