@@ -82,6 +82,8 @@ const createData = async (req, res) => {
         // let artistList = await Artist.find({_id: { $in: artists }});
         // console.log(artistList);
 
+        //for each element in the artist array, find the artist by id 
+        //and push the song id into the artist's songs array
         for (let artistId of artists) {
             let artist = await Artist.findById(artistId);
     
@@ -178,57 +180,6 @@ const updateData = async (req, res) => {
 
         return res.status(500).json(err);
     };
-
-    
-
-
-    // Song.findByIdAndUpdate(id, body, {
-    //     new: true,
-    //     runValidators: true
-    // })
-    // .then(data => {
-
-    //         if(data){
-    //             return res.status(201).json(data);
-    //         }
-
-    //         return res.status(404).json({
-    //             message: `Song with id: ${id} not found`
-    //         })
-    //     })
-
-    // .catch(err => {
-
-    //     if(err.name === 'CastError'){
-
-    //         if(err.kind === 'ObjectId'){
-    //             return res.status(404).json({
-    //                 message: `Song with id: ${id} not found`
-    //             });
-    //         }
-    //         else {
-    //             return res.status(422).json({
-    //                 message: err.message
-    //             });
-    //         }
-
-    //     }
-
-    //     return res.status(500).json(err);
-    // });
-
-    // connect to db and check if user exists
-    // check if data is valid, if yes update user with :id
-
-
-
-    // data.id = id;
-
-    // res.status(200).json({
-    //     "message": `You updated song with id: ${id}`,
-    //     data
-    // });
-
 };
 
 const deleteData = (req, res) => {

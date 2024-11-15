@@ -7,21 +7,23 @@ const Publisher = require('./models/publisher.model');
 const Artist = require('./models/artist.model');
 const Song = require('./models/song.model');
 
+//define users and roles
 const users = [
     {
-    full_name : "admin user",
-    email : "admin@gmail.com",
-    password : "secret1234",
-    role: 1
+        full_name : "admin user",
+        email : "admin@gmail.com",
+        password : "secret1234",
+        role: 1
     },
     {
         full_name : "regular user",
         email : "regular@gmail.com",
         password : "secret1234",
         role: 0
-        },
+    },
 ];
 
+//define genres
 const genres = [
     {
         name: "Electronic"
@@ -34,6 +36,7 @@ const genres = [
     }
 ]
 
+//define producers
 const producers = [
     {
         full_name: "Bob"
@@ -43,6 +46,7 @@ const producers = [
     }
 ]
 
+//define publishers
 const publishers = [
     {
         name: "Platinum records"
@@ -52,6 +56,7 @@ const publishers = [
     }
 ]
 
+//define artists, ignore the songs array field until songs are seeded, then push the song IDs into the artists later
 const artists = [
     {
         full_name: "Artist A",
@@ -69,13 +74,12 @@ let seedDB = async () => {
     await Publisher.deleteMany();
     await Artist.deleteMany();
     await Song.deleteMany();
-    //await Todo.deleteMany();
 
     await User.insertMany(users);
 
     //insert genres and retrieve IDs
     const insertedGenres = await Genre.insertMany(genres);
-    const genreIds = insertedGenres.map(genre => genre._id);
+    const genreIds = insertedGenres.map(genre => genre._id); //map the IDs to a new array
 
     //insert producers and retrieve IDs
     const insertedProducers = await Producer.insertMany(producers);
@@ -88,9 +92,8 @@ let seedDB = async () => {
     //insert artists and retrieve IDs
     const insertedArtists = await Artist.insertMany(artists);
     const artistIds = insertedArtists.map(artist => artist._id);
-    //await Todo.insertMany(todos);
 
-    //define songs with retrieved IDs
+    //define songs with IDs
     const songs = [
         {
             title: "Seeded Song A",
@@ -103,26 +106,24 @@ let seedDB = async () => {
         }
     ];
 
-    // Insert songs
-    //await Song.insertMany(songs);
+    //insert songs and retrieve IDs
+    const insertedSongs = await Song.insertMany(songs);
+    const songIds = insertedSongs.map(song => song._id);
 
-        //insert songs and retrieve IDs
-        const insertedSongs = await Song.insertMany(songs);
-        const songIds = insertedSongs.map(song => song._id);
-    
-        //update the songs array in each artist document
-        for (let song of insertedSongs) {
-            for (let artistId of song.artists) {
-                let artist = await Artist.findById(artistId);
-                if (artist) {
-                    artist.songs.push(song._id);
-                    await artist.save();
-                }
+    //update the songs array in each artist document
+    //for each song in the insertedSongs array, loop through the artists array and update the artist's songs array
+    for (let song of insertedSongs) {
+        for (let artistId of song.artists) {
+            let artist = await Artist.findById(artistId);
+            if (artist) {
+                artist.songs.push(song._id);
+                await artist.save();
             }
         }
+    }
 };
 
 seedDB().then(() => {
     console.log('Seeding operation successfull!');
-    disconnect();
+    disconnect(); //disconnect after seeding
 });

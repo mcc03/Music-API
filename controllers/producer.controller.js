@@ -2,7 +2,7 @@ const Producer = require('../models/producer.model');
 
 const readAll = (req, res) => {
 
-    Producer.find()//.//populate('festival') //shows the festival data
+    Producer.find()
         .then(data => {
             console.log(data);
 

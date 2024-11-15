@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
+//importing controller functions
 const { 
     readAll, 
     readOne, 
@@ -9,8 +10,10 @@ const {
     deleteData
 } = require('../controllers/artist.controller');
 
+//importing loginRequired function
 const { loginRequired } = require('../controllers/user.controller')
 
+//defining routes
 router.get('/', readAll);
 router.get('/:id', readOne);
 router.post('/', loginRequired, createData);  

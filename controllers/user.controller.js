@@ -39,7 +39,7 @@ const login = (req, res) => {
                 });
             }
 
-            // Ensure APP_KEY is set
+            //error handling for APP KEY
             if (!process.env.APP_KEY) {
                 console.error('APP_KEY is not defined');
                 return res.status(500).json({
@@ -47,7 +47,7 @@ const login = (req, res) => {
                 });
             }
 
-            // Generate the token
+            //token generation
             const token = jwt.sign({
                 email: user.email,
                 full_name: user.full_name,
@@ -84,7 +84,7 @@ const loginRequired = (req, res, next) => {
 
 const readAll = (req, res) => {
 
-    User.find()//.//populate('festival') //shows the festival data
+    User.find()
         .then(data => {
             console.log(data);
 

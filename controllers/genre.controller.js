@@ -2,7 +2,7 @@ const Genre = require('../models/genre.model');
 
 const readAll = (req, res) => {
 
-    Genre.find()//.//populate('festival') //shows the festival data
+    Genre.find()
         .then(data => {
             console.log(data);
 

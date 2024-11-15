@@ -2,7 +2,7 @@ const Publisher = require('../models/publisher.model');
 
 const readAll = (req, res) => {
 
-    Publisher.find()//.//populate('festival') //shows the festival data
+    Publisher.find()
         .then(data => {
             console.log(data);
 

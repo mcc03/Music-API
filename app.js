@@ -10,6 +10,7 @@ require('dotenv').config();
 //     require('./config/db').connect();
 // }
 
+//connecting to db
 require('./config/db').connect();
 
 app.use(cors());
@@ -17,34 +18,7 @@ app.use(express.json());
 
 app.use(express.static('public'));
 
-// app.use((req, res, next) => {
-//     console.log("REQUEST: ", req)
-//     req.user = "marlon";
-//     next();
-// });
-
-// app.use((req, res, next) => {
-//     console.log("REQUEST Log 2: ", req)
-//     next();
-// });
-
-//// AUTHORIZATION ////
-// app.use((req, res, next) => {
-//     let authHeader = req.headers.authorization?.split(' ');
-
-//     if(req.headers?.authorization && authHeader[0] === 'Bearer'){
-//         jwt.verify(authHeader[1], process.env.JWT_SECRET, (err, decoded) => {
-//             if(err) req.user = undefined;
-//             req.user = decoded;
-//             next();
-//         });
-//     }
-//     else {
-//         req.user = undefined;
-//         next();
-//     }
-// })
-//////////////////////
+//authorization
 app.use((req, res, next) => {
     if (req.headers?.authorization?.split(' ')[0] === 'Bearer') {
         jwt.verify(
@@ -63,7 +37,7 @@ app.use((req, res, next) => {
     }
 });
 
-
+//defining routes for the app
 app.use('/api/users', require('./routes/users'));
 app.use('/api/artists', require('./routes/artists'));
 app.use('/api/publishers', require('./routes/publishers'));
