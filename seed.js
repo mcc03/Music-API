@@ -56,7 +56,7 @@ const publishers = [
     }
 ]
 
-//define artists, ignore the songs array field until songs are seeded, then push the song IDs into the artists later
+//define artists, ignore songs array for now, push the song IDs later
 const artists = [
     {
         full_name: "Artist A",
@@ -94,6 +94,8 @@ let seedDB = async () => {
     const artistIds = insertedArtists.map(artist => artist._id);
 
     //define songs with IDs
+
+    //define songs with retrieved IDs
     const songs = [
         {
             title: "Seeded Song A",
@@ -106,21 +108,20 @@ let seedDB = async () => {
         }
     ];
 
-    //insert songs and retrieve IDs
-    const insertedSongs = await Song.insertMany(songs);
-    const songIds = insertedSongs.map(song => song._id);
-
-    //update the songs array in each artist document
-    //for each song in the insertedSongs array, loop through the artists array and update the artist's songs array
-    for (let song of insertedSongs) {
-        for (let artistId of song.artists) {
-            let artist = await Artist.findById(artistId);
-            if (artist) {
-                artist.songs.push(song._id);
-                await artist.save();
+        //insert songs and retrieve IDs
+        const insertedSongs = await Song.insertMany(songs);
+        const songIds = insertedSongs.map(song => song._id);
+    
+        //update the songs array in each artist document
+        for (let song of insertedSongs) {
+            for (let artistId of song.artists) {
+                let artist = await Artist.findById(artistId);
+                if (artist) {
+                    artist.songs.push(song._id);
+                    await artist.save();
+                }
             }
         }
-    }
 };
 
 seedDB().then(() => {
